@@ -1,0 +1,67 @@
+
+{
+  "schemaVersion": 1,
+  "deviceProperties": [
+  ],
+  "profile_memory": 1,
+  "record_shapes": 1,
+  "traceEvents": [
+  {
+    "ph": "X", "cat": "user_annotation", "name": "ProfilerStep#4", "pid": 20284, "tid": 26048,
+    "ts": 6150163533763.218, "dur": 23.600,
+    "args": {
+      "External id": 1025,"Record function id": 0, "Ev Idx": 0
+    }
+  },
+  {
+    "name": "thread_name", "ph": "M", "ts": 6150163533692.200, "pid": 20284, "tid": 26048,
+    "args": {
+      "name": "thread 26048 ()"
+    }
+  },
+  {
+    "name": "thread_sort_index", "ph": "M", "ts": 6150163533692.200, "pid": 20284, "tid": 26048,
+    "args": {
+      "sort_index": 26048
+    }
+  },
+  {
+    "name": "thread_name", "ph": "M", "ts": 6150163533692.200, "pid": 20284, "tid": 26048,
+    "args": {
+      "name": "thread 26048 ()"
+    }
+  },
+  {
+    "name": "thread_sort_index", "ph": "M", "ts": 6150163533692.200, "pid": 20284, "tid": 26048,
+    "args": {
+      "sort_index": 26048
+    }
+  },
+  {
+    "ph": "X", "cat": "Trace", "ts": 6150163533632.300, "dur": 208.000,
+    "pid": "Spans", "tid": "PyTorch Profiler",
+    "name": "PyTorch Profiler (0)",
+    "args": {
+      "Op count": 0
+    }
+  },
+  {
+    "name": "process_sort_index", "ph": "M", "ts": 6150163533632.300,
+    "pid": "Spans", "tid": 0,
+    "args": {
+      "sort_index": 536870912
+    }
+  },
+  {
+    "name": "Iteration Start: PyTorch Profiler", "ph": "i", "s": "g",
+    "pid": "Traces", "tid": "Trace PyTorch Profiler", "ts": 6150163533632.300
+  },
+  {
+    "name": "Record Window End", "ph": "i", "s": "g",
+    "pid": "", "tid": "", "ts": 6150163533926.100
+  }
+  ],
+  "traceName": "./log/trace_new111/DESKTOP-KF5T7HO_20284.1757560999533948200.pt.trace.json",
+  "displayTimeUnit": "ms",
+  "baseTimeNanoseconds": 1751410836000000000
+}

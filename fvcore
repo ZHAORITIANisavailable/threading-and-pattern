@@ -1,0 +1,67 @@
+from fvcore.nn import FlopCountAnalysis
+import torch
+import torch.nn as nn
+# Load the model and test its accuracy
+from RESNETEE import ResNet18AutoEarlyExits
+from spliter import split_cifar10_dataset
+from torch.utils.data import DataLoader, Subset
+model_with_exits = ResNet18AutoEarlyExits()
+model_with_exits.load_state_dict(torch.load('model_with_exits_new.pth'))
+model_with_exits.cuda()
+# model_with_exits.train()  # 默认开启训练模式以支持后续 retrain
+model_with_exits.eval()  # 切换到评估模式
+# Example: Evaluate accuracy on test set
+datasets = split_cifar10_dataset()
+
+if datasets is not None:
+	train_dataset_1, train_dataset_2, test_dataset = datasets
+	print(f'Dataset 1 size: {len(train_dataset_1)}')
+	print(f'Dataset 2 size: {len(train_dataset_2)}')
+	train_loader_1 = DataLoader(train_dataset_1, batch_size=64, shuffle=True)
+	train_loader_2 = DataLoader(train_dataset_2, batch_size=64, shuffle=True)
+	test_loader = DataLoader(test_dataset, batch_size=64, shuffle=False)
+else:
+	print("split_cifar10_dataset() returned None. Please check its implementation.")
+	
+a_single_input = torch.randn(1, 3, 32, 32).to('cuda')
+
+
+# --- 1. Define an Improved Wrapper Module ---
+# This class now holds the model and knows which path to execute.
+class ModelPathWrapper(nn.Module):
+    def __init__(self, model, path_flag):
+        super().__init__()
+        # CRITICAL: Store the model as a submodule
+        self.model = model
+        
+        # Store the flag that determines which path to take
+        if path_flag not in ['exit1', 'exit2', 'full']:
+            raise ValueError("path_flag must be 'exit1', 'exit2', or 'full'")
+        self.path_flag = path_flag
+
+    def forward(self, x):
+        # Call the model's forward pass with the correct arguments
+        if self.path_flag == 'exit1':
+            return self.model(x, return_exit1=True)
+        elif self.path_flag == 'exit2':
+            return self.model(x, return_exit2=True)
+        else: # 'full' path
+            return self.model(x)
+
+# --- 2. Calculate and Print FLOPs Using the New Wrapper ---
+print("--- Analyzing Computational Cost (FLOPs) ---")
+
+# Analyze Exit 1 by creating a wrapper instance for that specific path
+exit1_analyzer = ModelPathWrapper(model_with_exits, 'exit1')
+flops1 = FlopCountAnalysis(exit1_analyzer, a_single_input)
+print(f"Exit 1 Path FLOPs: {flops1.total() / 1e9:.3f} GFLOPs")
+
+# Analyze Exit 2
+exit2_analyzer = ModelPathWrapper(model_with_exits, 'exit2')
+flops2 = FlopCountAnalysis(exit2_analyzer, a_single_input)
+print(f"Exit 2 Path FLOPs: {flops2.total() / 1e9:.3f} GFLOPs")
+
+# Analyze the Main Exit
+full_path_analyzer = ModelPathWrapper(model_with_exits, 'full')
+flops_full = FlopCountAnalysis(full_path_analyzer, a_single_input)
+print(f"Main Exit Path FLOPs: {flops_full.total() / 1e9:.3f} GFLOPs")
